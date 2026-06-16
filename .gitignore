@@ -47,3 +47,4 @@ ENV/
 .vscode/
 .cursorignore
 .cursorindexingignore
+.DS_Store

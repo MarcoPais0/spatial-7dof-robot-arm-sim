@@ -16,6 +16,8 @@ This repository is organized around a small simulation codebase and a separate d
 
 - Keep documentation aligned with the current code, especially the DH model, Jacobian, dynamics, controller, and demos.
 - Update the relevant topic document when changing behavior or assumptions.
+- All business, design, and architecture rules must be documented in the proper location, usually the relevant `docs/` topic file or a new topic file when needed.
+- When a change affects runtime behavior, windowing, or user workflow, perform a doc-code coherence pass on the affected docs before treating the work as complete.
 - Do not expand the README into a long narrative; link into `docs/` instead.
 - Prefer one topic per doc so the material can be reused later in a formal report.
 - Preserve terminology consistently: frames, DH geometry, tool transform, `J_v`, simplified dynamics, and simulation loop.

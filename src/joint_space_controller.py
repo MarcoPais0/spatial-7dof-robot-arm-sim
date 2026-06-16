@@ -4,10 +4,10 @@ from typing import Sequence, Tuple
 
 try:
     # When used as part of the package
-    from .joint_space_dynamics import SimpleDynamics4DOF
+    from .joint_space_dynamics import SimpleDynamics7DOF
 except ImportError:
     # When run directly from the src directory
-    from joint_space_dynamics import SimpleDynamics4DOF
+    from joint_space_dynamics import SimpleDynamics7DOF
 
 
 @dataclass
@@ -24,7 +24,7 @@ class JointSpacePDController:
     def __init__(
         self,
         gains: Sequence[PDGains],
-        dyn: SimpleDynamics4DOF,
+        dyn: SimpleDynamics7DOF,
         tau_limit: float = 50.0,
     ) -> None:
         if len(gains) != dyn.arm.dof:
@@ -64,7 +64,7 @@ class JointSpacePDController:
 
 
 def simulate_joint_step_response(
-    dyn: SimpleDynamics4DOF,
+    dyn: SimpleDynamics7DOF,
     controller: JointSpacePDController,
     q_init: Sequence[float],
     qdot_init: Sequence[float],
@@ -116,23 +116,26 @@ def main() -> None:
     Quick smoke test of the controller and dynamics on a simple step.
     """
     try:
-        from .forward_kinematics import Arm4DOFDH
+        from .forward_kinematics import Arm7DOFDH
     except ImportError:
-        from forward_kinematics import Arm4DOFDH
+        from forward_kinematics import Arm7DOFDH
 
-    arm = Arm4DOFDH()
-    dyn = SimpleDynamics4DOF(arm)
+    arm = Arm7DOFDH()
+    dyn = SimpleDynamics7DOF(arm)
     gains = [
         PDGains(kp=5.0, kd=1.0),
+        PDGains(kp=4.5, kd=0.9),
         PDGains(kp=4.0, kd=0.8),
+        PDGains(kp=3.5, kd=0.7),
         PDGains(kp=3.0, kd=0.6),
-        PDGains(kp=2.0, kd=0.5),
+        PDGains(kp=2.5, kd=0.5),
+        PDGains(kp=2.0, kd=0.4),
     ]
     controller = JointSpacePDController(gains, dyn)
 
-    q_init = np.zeros(4)
-    qdot_init = np.zeros(4)
-    q_ref = np.deg2rad([30.0, 20.0, -15.0, 10.0])
+    q_init = np.zeros(7)
+    qdot_init = np.zeros(7)
+    q_ref = np.deg2rad([30.0, 20.0, -15.0, 10.0, -20.0, 15.0, 5.0])
 
     ts, qs, _ = simulate_joint_step_response(
         dyn, controller, q_init, qdot_init, q_ref, dt=0.01, t_final=3.0

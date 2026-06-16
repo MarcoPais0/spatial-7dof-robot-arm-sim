@@ -2,13 +2,13 @@
 
 ## Purpose
 
-The project models a spatial 4DOF robotic arm and provides a compact simulation stack for kinematic analysis, resolved-rate motion, simplified dynamics, joint-space control, and 3D visualization.
+The project models a spatial 7DOF robotic arm and provides a compact simulation stack for kinematic analysis, resolved-rate motion, simplified dynamics, joint-space control, and 3D visualization.
 
 ## Scope
 
-- The arm uses standard DH geometry with four revolute joints.
+- The arm uses standard DH geometry with seven revolute joints.
 - The task-space focus is end-effector position control in 3D.
-- End-effector roll exists as the redundant motion about `z4` but is not the primary controlled output.
+- End-effector roll exists as the redundant motion about the final wrist axis but is not the primary controlled output.
 - The implementation favors a clear educational model over a full rigid-body dynamics engine.
 
 ## Core Interfaces

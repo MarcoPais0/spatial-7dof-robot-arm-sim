@@ -11,9 +11,9 @@ omega_i = z_(i-1)
 J_i = [v_i; omega_i]
 ```
 
-The position Jacobian `J_v` is the upper 3x4 block of `J`.
+The position Jacobian `J_v` is the upper 3x7 block of `J`.
 
-With the default tool alignment `T_4^tool = Trans_z(L_tool)`, joint 4 contributes roll/orientation but not tool-origin translation, so the `q4` column of `J_v` is zero.
+With the default tool alignment aligned to the final wrist axis, the terminal roll joint contributes orientation but not tool-origin translation, so the last column of `J_v` is zero.
 
 ## Singularity Analysis
 
@@ -46,4 +46,3 @@ q_dot_ref = q_dot_cmd
 - Damping grows as the smallest singular value decreases.
 - The method prioritizes stability near singularities over perfect tracking accuracy.
 - The inverse-kinematics loop is position-first; orientation is not the primary task.
-

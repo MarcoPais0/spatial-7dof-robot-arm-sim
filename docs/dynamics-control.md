@@ -6,8 +6,8 @@ The project uses a reduced joint-space model:
 
 ```text
 M q_ddot = tau - D q_dot - g(q)
-M approx diag(I_1, I_2, I_3, I_4)
-D approx diag(d_1, d_2, d_3, d_4)
+M approx diag(I_1, I_2, I_3, I_4, I_5, I_6, I_7)
+D approx diag(d_1, d_2, d_3, d_4, d_5, d_6, d_7)
 ```
 
 This keeps the simulation simple and consistent with the educational scope of the arm model.
@@ -24,6 +24,8 @@ tau = sat(tau_cmd, -tau_limit, tau_limit)
 ```
 
 The gravity term is included directly in the controller so it approximately cancels the gravity term in the dynamics. The default torque limit is `tau_limit = 50 N m` per joint.
+
+For the 7DOF arm, the gravity approximation uses a lightweight segment-length profile rather than a full rigid-body model, which keeps the demo stable without introducing a much heavier dynamics stack.
 
 ## Numerical Integration
 

@@ -4,10 +4,10 @@ from typing import Sequence
 
 try:
     # When used as part of the package
-    from .forward_kinematics import Arm4DOFDH
+    from .forward_kinematics import Arm7DOFDH
 except ImportError:
     # When run directly from the src directory
-    from forward_kinematics import Arm4DOFDH
+    from forward_kinematics import Arm7DOFDH
 
 
 @dataclass(frozen=True)
@@ -36,9 +36,9 @@ class JacobianAnalysis:
     manipulability: float
 
 
-def geometric_jacobian(arm: Arm4DOFDH, q: Sequence[float]) -> np.ndarray:
+def geometric_jacobian(arm: Arm7DOFDH, q: Sequence[float]) -> np.ndarray:
     """
-    Compute the 6x4 base-frame geometric Jacobian for the 4DOF DH arm.
+    Compute the 6xn base-frame geometric Jacobian for the DH arm.
 
     The Jacobian is constructed numerically from the DH chain using the
     classic z-axis / cross-product method:
@@ -46,12 +46,13 @@ def geometric_jacobian(arm: Arm4DOFDH, q: Sequence[float]) -> np.ndarray:
         w_i   = z_i-1
 
     The upper block J_v maps joint velocities to tool-origin linear velocity.
-    With the default T_4^tool = Trans_z(L_tool), the q4 column of J_v is zero:
-    joint 4 contributes end-effector roll/orientation, not tool translation.
+    With the default tool frame aligned to the final wrist axis, the last
+    column of J_v is zero: the terminal roll joint contributes orientation,
+    not tool translation.
 
     Parameters
     ----------
-    arm : Arm4DOFDH
+    arm : Arm7DOFDH
         Arm model providing DH parameters.
     q : array_like, shape (4,)
         Joint angles.
@@ -81,7 +82,7 @@ def geometric_jacobian(arm: Arm4DOFDH, q: Sequence[float]) -> np.ndarray:
     return J
 
 
-def position_jacobian(arm: Arm4DOFDH, q: Sequence[float]) -> np.ndarray:
+def position_jacobian(arm: Arm7DOFDH, q: Sequence[float]) -> np.ndarray:
     """
     Return the 3x4 position Jacobian J_v(q) in the base frame.
 
@@ -92,7 +93,7 @@ def position_jacobian(arm: Arm4DOFDH, q: Sequence[float]) -> np.ndarray:
 
 
 def analyze_position_jacobian(
-    arm: Arm4DOFDH,
+    arm: Arm7DOFDH,
     q: Sequence[float],
     tol: float = 1e-9,
 ) -> JacobianAnalysis:
@@ -125,8 +126,8 @@ def main() -> None:
     """
     Small demo: print J(q), J_v(q), and SVD analysis at a sample configuration.
     """
-    arm = Arm4DOFDH()
-    q = np.deg2rad([30.0, 20.0, -15.0, 40.0])
+    arm = Arm7DOFDH()
+    q = np.deg2rad([30.0, 20.0, -15.0, 40.0, -25.0, 15.0, 10.0])
     J = geometric_jacobian(arm, q)
     J_v = position_jacobian(arm, q)
     analysis = analyze_position_jacobian(arm, q)

@@ -3,15 +3,15 @@ from typing import Sequence, Tuple
 
 try:
     # When used as part of the package
-    from .forward_kinematics import Arm4DOFDH
+    from .forward_kinematics import Arm7DOFDH
 except ImportError:
     # When run directly from the src directory
-    from forward_kinematics import Arm4DOFDH
+    from forward_kinematics import Arm7DOFDH
 
 
-class SimpleDynamics4DOF:
+class SimpleDynamics7DOF:
     """
-    Minimal joint-space dynamics for the 4DOF arm.
+    Minimal joint-space dynamics for the 7DOF arm.
 
     Assumptions:
     - Diagonal inertia and damping matrices.
@@ -21,7 +21,7 @@ class SimpleDynamics4DOF:
 
     def __init__(
         self,
-        arm: Arm4DOFDH,
+        arm: Arm7DOFDH,
         joint_inertias: Sequence[float] | None = None,
         joint_dampings: Sequence[float] | None = None,
         gravity: float = 9.81,
@@ -59,7 +59,7 @@ class SimpleDynamics4DOF:
 
     def gravity_torque(self, q: Sequence[float]) -> np.ndarray:
         """
-        Lightweight gravity torque approximation based on projected link
+        Lightweight gravity torque approximation based on projected segment
         lengths.
 
         This is the final gravity model for the current version of the
@@ -74,7 +74,9 @@ class SimpleDynamics4DOF:
         g = self.g_const
 
         torques = np.zeros(n, dtype=float)
-        lengths = np.array([link.a for link in self.arm.links], dtype=float)
+        lengths = np.asarray(getattr(self.arm, "segment_lengths", np.ones(n)), dtype=float)
+        if lengths.shape != (n,):
+            lengths = np.resize(lengths, n)
 
         # For each link, approximate a projected CoM contribution.
         for i in range(n):
@@ -125,17 +127,21 @@ def main() -> None:
     """
     Small smoke test for the dynamics class.
     """
-    arm = Arm4DOFDH()
-    dyn = SimpleDynamics4DOF(arm)
+    arm = Arm7DOFDH()
+    dyn = SimpleDynamics7DOF(arm)
 
-    q = np.zeros(4)
-    q_dot = np.zeros(4)
-    tau = np.array([0.5, 0.0, 0.0, 0.0])
+    q = np.zeros(7)
+    q_dot = np.zeros(7)
+    tau = np.array([0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
     dt = 0.01
 
     for _ in range(10):
         q, q_dot = dyn.step(q, q_dot, tau, dt)
     print("q after 10 steps:", q)
+
+
+# Backward compatibility alias for older imports.
+SimpleDynamics4DOF = SimpleDynamics7DOF
 
 
 if __name__ == "__main__":

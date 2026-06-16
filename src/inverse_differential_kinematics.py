@@ -3,12 +3,12 @@ from typing import Sequence
 
 try:
     # When used as part of the package
-    from .forward_kinematics import Arm4DOFDH
-    from .geometric_jacobian import geometric_jacobian
+    from .forward_kinematics import Arm7DOFDH
+    from .geometric_jacobian import position_jacobian
 except ImportError:
     # When run directly from the src directory
-    from forward_kinematics import Arm4DOFDH
-    from geometric_jacobian import geometric_jacobian
+    from forward_kinematics import Arm7DOFDH
+    from geometric_jacobian import position_jacobian
 
 
 def damped_pseudo_inverse(J: np.ndarray, lam: float = 1e-3) -> np.ndarray:
@@ -72,7 +72,7 @@ def adaptive_damping(
 
 
 def inverse_differential_kinematics(
-    arm: Arm4DOFDH,
+    arm: Arm7DOFDH,
     q: Sequence[float],
     v_desired: np.ndarray,
     lam: float = 1e-3,
@@ -82,9 +82,9 @@ def inverse_differential_kinematics(
 
     Parameters
     ----------
-    arm : Arm4DOFDH
+    arm : Arm7DOFDH
         Arm model.
-    q : array_like, shape (4,)
+    q : array_like, shape (7,)
         Current joint configuration.
     v_desired : ndarray, shape (3,)
         Desired tool-origin linear velocity in the base frame.
@@ -93,7 +93,7 @@ def inverse_differential_kinematics(
 
     Returns
     -------
-    qdot : ndarray, shape (4,)
+    qdot : ndarray, shape (7,)
         Joint velocities realizing the desired spatial velocity in the
         least-squares sense.
     """
@@ -101,7 +101,7 @@ def inverse_differential_kinematics(
     if v_desired.shape != (3,):
         raise ValueError(f"Expected a 3-vector for v_desired, got shape {v_desired.shape}.")
 
-    J_v = geometric_jacobian(arm, q)[0:3, :]
+    J_v = position_jacobian(arm, q)
     J_pinv = damped_pseudo_inverse(J_v, lam=lam)
     return J_pinv @ v_desired
 
@@ -110,8 +110,8 @@ def main() -> None:
     """
     Small demo: print a joint-velocity command for a sample spatial command.
     """
-    arm = Arm4DOFDH()
-    q = np.deg2rad([30.0, 20.0, -15.0, 40.0])
+    arm = Arm7DOFDH()
+    q = np.deg2rad([30.0, 20.0, -15.0, 40.0, -25.0, 15.0, 10.0])
     v_desired = np.array([0.1, 0.0, 0.0], dtype=float)
     qdot = inverse_differential_kinematics(arm, q, v_desired)
     np.set_printoptions(precision=3, suppress=True)
